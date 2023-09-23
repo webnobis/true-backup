@@ -1,12 +1,22 @@
 package com.webnobis.truebackup.model;
 
-import java.nio.file.Path;
-import java.util.Objects;
-
-public record InvalidByte(Path file, long position, Integer read, Integer valid, boolean votingSuccess) {
-
-    static InvalidByte of(ReadByte readByte, Integer valid, boolean votingSuccess) {
-        return new InvalidByte(Objects.requireNonNull(readByte).file(), readByte.position(), readByte.read(), valid, votingSuccess);
+/**
+ * An invalid byte
+ *
+ * @param invalid       the invalid file byte
+ * @param valid         the valid file byte
+ * @param position      the bytes position
+ * @param votingSuccess the invalid byte was found through voting without fail
+ * @author Steffen Nobis
+ */
+public record InvalidByte(FileByte invalid, FileByte valid, long position, boolean votingSuccess) {
+    @Override
+    public String toString() {
+        return "InvalidByte{" +
+                "invalid=" + invalid +
+                ", valid=" + valid +
+                ", position=" + position +
+                ", votingSuccess=" + votingSuccess +
+                '}';
     }
-
 }

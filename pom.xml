@@ -31,7 +31,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>2.0.7</version>
+            <version>2.0.9</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -164,14 +164,15 @@
                         --add-opens
                         ${project.module}/${project.module}.model=ALL-UNNAMED
                         --add-opens
-                        ${project.module}/${project.module}.service=ALL-UNNAMED
+                        ${project.module}/${project.module}.read=ALL-UNNAMED
                         --add-opens
-                        ${project.module}/${project.module}.service.backup=ALL-UNNAMED
+                        ${project.module}/${project.module}.read.bytes=ALL-UNNAMED
                         --add-opens
-                        ${project.module}/${project.module}.service.repair=ALL-UNNAMED
+                        ${project.module}/${project.module}.repair=ALL-UNNAMED
                         --add-opens
-                        ${project.module}/${project.module}.service.verify=ALL-UNNAMED
-                        --add-opens ${project.module}/${project.module}.service.verify.bytes=ALL-UNNAMED
+                        ${project.module}/${project.module}.verify=ALL-UNNAMED
+                        --add-opens
+                        ${project.module}/${project.module}.verify.bytes=ALL-UNNAMED
                     </argLine>
                 </configuration>
             </plugin>
