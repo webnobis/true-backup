@@ -47,6 +47,16 @@ class ReaderTest {
     }
 
     @Test
+    void relativizeFilesFile(Path dir) throws IOException {
+        Path file = dir.resolve("file.dat");
+        Files.createFile(file);
+
+        List<Path> paths = Reader.relativizeFiles(file).toList();
+        assertSame(1, paths.size());
+        assertSame(file, paths.iterator().next());
+    }
+
+    @Test
     void relativizeFilesNull() throws IOException {
         assertTrue(Reader.relativizeFiles(null).toList().isEmpty());
     }

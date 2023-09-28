@@ -23,8 +23,11 @@ public interface Reader<T> {
      * @throws IOException, if the reading failed
      */
     static Stream<Path> relativizeFiles(Path dir) throws IOException {
-        if (dir == null || !Files.exists(dir) || Files.isRegularFile(dir)) {
+        if (dir == null || Files.notExists(dir)) {
             return Stream.empty();
+        }
+        if (Files.isRegularFile(dir)) {
+            return Stream.of(dir);
         }
         return Files.walk(dir).filter(Files::isRegularFile).map(dir::relativize);
     }

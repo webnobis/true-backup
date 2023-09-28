@@ -9,4 +9,11 @@ package com.webnobis.truebackup.model;
  * @author Steffen Nobis
  */
 public record Bundle<T>(T master, T copy) {
+    @Override
+    public String toString() {
+        return "Bundle{" +
+                "master=" + master +
+                ", copy=" + copy +
+                '}';
+    }
 }
