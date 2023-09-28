@@ -9,6 +9,7 @@ import com.webnobis.truebackup.verify.bytes.ByteVerifier;
 import com.webnobis.truebackup.verify.bytes.DefaultByteVerifier;
 
 import java.nio.file.Path;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -31,7 +32,9 @@ public class DefaultVerifier implements Verifier<Bundle<Path>> {
         }
 
         byteVerifier.resetPosition();
-        return Stream.of(new InvalidFile(files.copy(), files.master(), bytesReader.read(files).flatMap(byteVerifier::verify).toList()));
+        return bytesReader.read(files).parallel().flatMap(byteVerifier::verify)
+                .collect(Collectors.groupingByConcurrent(invalidByte -> new InvalidFile(invalidByte.invalid().file(), invalidByte.valid().file(), null)))
+                .entrySet().stream().map(e -> new InvalidFile(e.getKey().invalid(), e.getKey().valid(), e.getValue()));
     }
 
 }

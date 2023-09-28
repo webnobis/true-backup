@@ -3,6 +3,7 @@ package com.webnobis.truebackup.model;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -46,6 +47,23 @@ public record InvalidFile(Path invalid, Path valid, List<InvalidByte> bytes) {
      */
     public boolean votingSuccess() {
         return Optional.ofNullable(bytes).stream().flatMap(List::stream).map(InvalidByte::votingSuccess).allMatch(Boolean.TRUE::equals);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        InvalidFile that = (InvalidFile) o;
+        return Objects.equals(invalid, that.invalid) && Objects.equals(valid, that.valid) && Objects.equals(bytes, that.bytes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(invalid, valid, bytes);
     }
 
     @Override

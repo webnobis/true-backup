@@ -20,7 +20,7 @@ class InvalidFileTest {
 
     private static Path valid;
 
-    private InvalidFile file;
+    private InvalidFile invalidFile;
 
     @BeforeAll
     static void setUpAll(Path dir) throws IOException {
@@ -32,12 +32,12 @@ class InvalidFileTest {
 
     @BeforeEach
     void setUp() {
-        file = new InvalidFile(invalid, valid, List.of(new InvalidByte(new FileByte(invalid, (byte) 42), new FileByte(valid, (byte) -1), 0L, true)));
+        invalidFile = new InvalidFile(invalid, valid, List.of(new InvalidByte(new FileByte(invalid, (byte) 42), new FileByte(valid, (byte) -1), 0L, true)));
     }
 
     @Test
     void shouldBeCreated(Path dir) {
-        assertFalse(file.shouldBeCreated());
+        assertFalse(invalidFile.shouldBeCreated());
         assertFalse(new InvalidFile(null, null, null).shouldBeCreated());
         assertFalse(new InvalidFile(null, dir.resolve("not-exists.txt"), null).shouldBeCreated());
         assertFalse(new InvalidFile(null, valid, null).shouldBeCreated());
@@ -47,7 +47,7 @@ class InvalidFileTest {
 
     @Test
     void shouldBeDeleted(Path dir) {
-        assertFalse(file.shouldBeDeleted());
+        assertFalse(invalidFile.shouldBeDeleted());
         assertFalse(new InvalidFile(null, null, null).shouldBeDeleted());
         assertFalse(new InvalidFile(dir.resolve("not-exists.txt"), null, null).shouldBeDeleted());
         assertFalse(new InvalidFile(invalid, null, null).shouldBeDeleted());
@@ -57,23 +57,28 @@ class InvalidFileTest {
 
     @Test
     void votingSuccess() {
-        assertTrue(file.votingSuccess());
+        assertTrue(invalidFile.votingSuccess());
         assertTrue(new InvalidFile(invalid, valid, null).votingSuccess());
     }
 
     @Test
     void invalid() {
-        assertSame(invalid, file.invalid());
+        assertSame(invalid, invalidFile.invalid());
     }
 
     @Test
     void valid() {
-        assertSame(valid, file.valid());
+        assertSame(valid, invalidFile.valid());
     }
 
     @Test
     void bytes() {
-        assertSame(1, file.bytes().size());
+        assertSame(1, invalidFile.bytes().size());
         assertNull(new InvalidFile(invalid, valid, null).bytes());
+    }
+
+    @Test
+    void equals() {
+        assertEquals(invalidFile, new InvalidFile(invalid, Path.of(valid.toString()), invalidFile.bytes()));
     }
 }
