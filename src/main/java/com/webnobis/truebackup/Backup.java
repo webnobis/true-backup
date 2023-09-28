@@ -68,7 +68,7 @@ public record Backup<T>(T dirs, Reader<T> reader, Verifier<T> verifier,
      * Verifies all files and repairs all invalid files, if repair is switched on
      *
      * @return all invalid files at the end, should be empty
-     * @throws UncheckedIOException, if the backup failed
+     * @throws UncheckedIOException if the backup failed
      */
     public List<InvalidFile> backup() {
         Objects.requireNonNull(verifier, "verifier is null");

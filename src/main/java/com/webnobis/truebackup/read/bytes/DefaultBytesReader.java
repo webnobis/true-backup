@@ -31,6 +31,10 @@ public class DefaultBytesReader implements BytesReader<Bundle<FileByte>, Bundle<
 
     @Override
     public Stream<Bundle<FileByte>> read(Bundle<Path> files) {
+        if (files == null) {
+            return Stream.empty();
+        }
+
         log.debug("read bytes of bundle {}", files);
         ByteReader masterReader = new DefaultByteReader(files.master());
         ByteReader copyReader = new DefaultByteReader(files.copy());

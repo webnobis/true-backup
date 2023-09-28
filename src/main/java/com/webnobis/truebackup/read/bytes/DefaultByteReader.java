@@ -21,9 +21,9 @@ import java.util.Optional;
  */
 public class DefaultByteReader implements ByteReader {
 
-    static final int CAPACITY = 256;
-
     private static final Logger log = LoggerFactory.getLogger(DefaultByteReader.class);
+
+    private static final int CAPACITY = 256;
 
     private final Path file;
 
@@ -48,18 +48,20 @@ public class DefaultByteReader implements ByteReader {
             }
         }).orElse(Channels.newChannel(new ByteArrayInputStream(new byte[0])));
         buffer = ByteBuffer.allocateDirect(CAPACITY);
+        buffer.position(CAPACITY);
     }
 
     @Override
     public synchronized Byte readNext() throws IOException {
         if (channel.isOpen()) {
+            if (!buffer.hasRemaining()) {
+                buffer.clear();
+                channel.read(buffer);
+                buffer.flip();
+            }
             if (buffer.hasRemaining()) {
                 return buffer.get();
-            }
-            buffer.clear();
-            channel.read(buffer);
-            buffer.flip();
-            if (!buffer.hasRemaining()) {
+            } else {
                 log.debug("reading of file {} finished", file);
                 channel.close();
             }
