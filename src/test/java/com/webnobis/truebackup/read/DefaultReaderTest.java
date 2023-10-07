@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -56,6 +58,11 @@ class DefaultReaderTest {
         Bundle<Path> b3 = bundles.stream().filter(b -> file3.equals(b.copy())).findAny().orElseThrow();
         assertTrue(Files.exists(b3.copy()));
         assertEquals(dir2.relativize(file3).toString(), dir1.relativize(b3.master()).toString());
+    }
+
+    @Test
+    void readFailed() {
+        assertThrows(FileSystemNotFoundException.class, () -> reader.read(new Bundle<>(Path.of(URI.create("xyz://xy.z")), Path.of("not exists"))));
     }
 
     @Test
