@@ -1,5 +1,7 @@
 package com.webnobis.truebackup.model;
 
+import java.util.Objects;
+
 /**
  * An invalid byte
  *
@@ -10,6 +12,24 @@ package com.webnobis.truebackup.model;
  * @author Steffen Nobis
  */
 public record InvalidByte(FileByte invalid, FileByte valid, long position, boolean votingSuccess) {
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        InvalidByte that = (InvalidByte) o;
+        return position == that.position && votingSuccess == that.votingSuccess && Objects.equals(invalid, that.invalid) && Objects.equals(valid, that.valid);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(invalid, valid, position, votingSuccess);
+    }
+
     @Override
     public String toString() {
         return "InvalidByte{" +

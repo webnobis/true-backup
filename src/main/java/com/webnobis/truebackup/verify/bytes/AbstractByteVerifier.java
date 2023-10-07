@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public abstract class AbstractByteVerifier<T> implements ByteVerifier<T> {
 
-    private final AtomicLong positionRef = new AtomicLong();
+    final AtomicLong positionRef = new AtomicLong();
 
     /**
      * Increments the position

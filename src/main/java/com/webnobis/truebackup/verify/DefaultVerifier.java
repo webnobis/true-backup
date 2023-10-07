@@ -16,14 +16,22 @@ import java.util.stream.Stream;
  * Default files verifier<br>
  * If master and copy byte not equals, the copy byte is always voted as invalid, each position
  *
+ * @param bytesReader  the bytes reader
+ * @param byteVerifier the bytes verifier
  * @author Steffen Nobis
- * @see DefaultByteVerifier#verify(Bundle)
  */
-public class DefaultVerifier implements Verifier<Bundle<Path>> {
+public record DefaultVerifier(BytesReader<Bundle<FileByte>, Bundle<Path>> bytesReader,
+                              ByteVerifier<Bundle<FileByte>> byteVerifier) implements Verifier<Bundle<Path>> {
 
-    private final BytesReader<Bundle<FileByte>, Bundle<Path>> bytesReader = new DefaultBytesReader();
-
-    private final ByteVerifier<Bundle<FileByte>> byteVerifier = new DefaultByteVerifier();
+    /**
+     * Constructor of defaults
+     *
+     * @see DefaultBytesReader
+     * @see DefaultByteVerifier
+     */
+    public DefaultVerifier() {
+        this(new DefaultBytesReader(), new DefaultByteVerifier());
+    }
 
     @Override
     public Stream<InvalidFile> verify(Bundle<Path> files) {
