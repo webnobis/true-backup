@@ -13,6 +13,16 @@ import java.util.stream.Stream;
 public interface Repairer {
 
     /**
+     * Does nothing repairer
+     *
+     * @return stream of over-given invalid file
+     * @see Stream#of(Object)
+     */
+    static Repairer doesNothing() {
+        return Stream::of;
+    }
+
+    /**
      * Repairs the invalid file.<br>
      * If valid file doesn't exist, invalid file will be deleted if delete flag is true, otherwise renamed
      *

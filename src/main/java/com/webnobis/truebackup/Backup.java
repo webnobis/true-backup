@@ -13,7 +13,6 @@ import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 /**
  * True backup<br>
@@ -44,7 +43,7 @@ public record Backup<T>(T dirs, Reader<T> reader, Verifier<T> verifier,
      * @return backup instance
      */
     static Backup<Bundle<Path>> of(Path master, Path copy, boolean repair, boolean deleteInvalidFileIfItShouldNotExist) {
-        return new Backup<Bundle<Path>>(new Bundle<>(master, copy), new DefaultReader(), new DefaultVerifier(), repair ? new DefaultRepairer(deleteInvalidFileIfItShouldNotExist) : Stream::of);
+        return new Backup<Bundle<Path>>(new Bundle<>(master, copy), new DefaultReader(), new DefaultVerifier(), repair ? new DefaultRepairer(deleteInvalidFileIfItShouldNotExist) : Repairer.doesNothing());
     }
 
     /**
