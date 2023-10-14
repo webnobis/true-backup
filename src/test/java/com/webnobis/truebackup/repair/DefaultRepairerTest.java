@@ -33,7 +33,7 @@ class DefaultRepairerTest {
         Files.write(valid, B);
         Files.write(invalid, new byte[]{6});
         invalidFile = new InvalidFile(invalid, valid, null);
-        repairer = new DefaultRepairer(false);
+        repairer = new DefaultRepairer(null);
     }
 
     @Test

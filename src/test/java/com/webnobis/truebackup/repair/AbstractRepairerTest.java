@@ -19,28 +19,28 @@ class AbstractRepairerTest {
 
     private static final byte[] B = {27, -1, 42};
 
+    private Path archive;
+
     private Path valid;
 
     private Path invalid;
 
-    private Path renamed;
+    private Path moved;
 
     private InvalidFile invalidFile;
 
-    private Repairer repairer;
+    private TestAbstractRepairer repairer;
 
     @BeforeEach
-    void setUp(Path dir) {
-        valid = dir.resolve("valid.png");
-        invalid = dir.resolve("invalid.png");
-        renamed = dir.resolve("invalid.png" + AbstractRepairer.FILE_DEL_EXT);
+    void setUp(Path dir) throws IOException {
+        archive = dir.resolve("archive/1/2/3");
+        valid = dir.resolve("a/b/c/valid.png");
+        Files.createDirectories(valid.getParent());
+        invalid = dir.resolve("x/y/invalid.png");
+        Files.createDirectories(invalid.getParent());
         invalidFile = new InvalidFile(invalid, valid, null);
-        repairer = new AbstractRepairer(false) {
-            @Override
-            protected void repairBytes(InvalidFile invalidFile) {
-                fail("unexpected call");
-            }
-        };
+        repairer = new TestAbstractRepairer(archive);
+        moved = archive.resolve(invalid.getRoot().relativize(invalid.getParent())).resolve("invalid.png" + repairer.fileDelExt);
     }
 
     @Test
@@ -48,23 +48,17 @@ class AbstractRepairerTest {
         Files.write(valid, B);
         Files.write(invalid, new byte[]{-100});
 
-        assertSame(0L, new AbstractRepairer(false) {
-            @Override
-            protected void repairBytes(InvalidFile invalidFile) throws IOException {
-                Files.write(invalidFile.invalid(), B);
-            }
-        }.repair(invalidFile).count());
+        repairer.executor = invalidFile -> Files.write(invalidFile.invalid(), B);
+        assertSame(0L, repairer.repair(invalidFile).count());
         assertArrayEquals(Files.readAllBytes(valid), Files.readAllBytes(invalid));
     }
 
     @Test
     void repairFailed() {
-        List<InvalidFile> list = new AbstractRepairer(false) {
-            @Override
-            protected void repairBytes(InvalidFile invalidFile) throws IOException {
-                throw new FileNotFoundException();
-            }
-        }.repair(invalidFile).toList();
+        repairer.executor = unused -> {
+            throw new FileNotFoundException();
+        };
+        List<InvalidFile> list = repairer.repair(invalidFile).toList();
         assertSame(1, list.size());
         assertSame(invalidFile, list.iterator().next());
     }
@@ -76,13 +70,10 @@ class AbstractRepairerTest {
 
     @Test
     void repairRuntimeException() {
-        assertThrows(RuntimeException.class, () -> new AbstractRepairer(false) {
-
-            @Override
-            protected void repairBytes(InvalidFile invalidFile) {
-                throw new RuntimeException();
-            }
-        }.repair(new InvalidFile(null, null, null)));
+        repairer.executor = unused -> {
+            throw new RuntimeException();
+        };
+        assertThrows(RuntimeException.class, () -> repairer.repair(new InvalidFile(null, null, null)));
     }
 
     @Test
@@ -94,26 +85,43 @@ class AbstractRepairerTest {
     }
 
     @Test
-    void repairRename() throws IOException {
+    void repairMoveToArchive() throws IOException {
         Files.write(invalid, B);
 
         assertSame(0L, repairer.repair(invalidFile).count());
         assertFalse(Files.exists(invalid));
-        assertArrayEquals(B, Files.readAllBytes(renamed));
+        assertArrayEquals(B, Files.readAllBytes(moved));
     }
 
     @Test
     void repairDelete() throws IOException {
         Files.write(invalid, B);
 
-        assertSame(0L, new AbstractRepairer(true) {
-            @Override
-            protected void repairBytes(InvalidFile invalidFile) {
-                fail("unexpected call");
-            }
-        }.repair(invalidFile).count());
+        assertSame(0L, new TestAbstractRepairer(null).repair(invalidFile).count());
         assertFalse(Files.exists(invalid));
-        assertFalse(Files.exists(renamed));
+        assertFalse(Files.exists(moved));
+    }
+
+    private class TestAbstractRepairer extends AbstractRepairer {
+
+        private Executor executor = unused -> fail("unexpected call"); // default
+
+        TestAbstractRepairer(Path archiveDirForInvalidFileIfItShouldNotExist) {
+            super(archiveDirForInvalidFileIfItShouldNotExist);
+        }
+
+        @Override
+        protected void repairBytes(InvalidFile invalidFile) throws IOException {
+            executor.execute(invalidFile);
+        }
+
+        @FunctionalInterface
+        interface Executor {
+
+            void execute(InvalidFile invalidFile) throws IOException;
+
+        }
+
     }
 
 }

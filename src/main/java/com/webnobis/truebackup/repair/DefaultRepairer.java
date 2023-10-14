@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * Default repairer of invalid files
@@ -18,10 +19,11 @@ public class DefaultRepairer extends AbstractRepairer {
     /**
      * Delete flag setting constructor
      *
-     * @see AbstractRepairer#AbstractRepairer(boolean)
+     * @param archiveDirForInvalidFileIfItShouldNotExist if valid file doesn't exist, moves the invalid file to archive dir or if null deletes the invalid file
+     * @see AbstractRepairer#AbstractRepairer(java.nio.file.Path)
      */
-    public DefaultRepairer(boolean deleteInvalidFileIfItShouldNotExist) {
-        super(deleteInvalidFileIfItShouldNotExist);
+    public DefaultRepairer(Path archiveDirForInvalidFileIfItShouldNotExist) {
+        super(archiveDirForInvalidFileIfItShouldNotExist);
     }
 
     @Override

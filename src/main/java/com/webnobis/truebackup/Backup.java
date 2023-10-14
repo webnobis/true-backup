@@ -36,14 +36,14 @@ public record Backup<T>(T dirs, Reader<T> reader, Verifier<T> verifier,
      * If repair is switched on, it repairs through file overwriting.
      * Only if repair is switched on, not existing copies were created.
      *
-     * @param master                              the master directory
-     * @param copy                                the copy directory
-     * @param repair                              repair is switched on, if true
-     * @param deleteInvalidFileIfItShouldNotExist if valid file doesn't exist, deletes the invalid file if true, otherwise renames it
+     * @param master                                     the master directory
+     * @param copy                                       the copy directory
+     * @param repair                                     repair is switched on, if true
+     * @param archiveDirForInvalidFileIfItShouldNotExist if valid file doesn't exist, moves the invalid file to archive dir or if null deletes the invalid file
      * @return backup instance
      */
-    static Backup<Bundle<Path>> of(Path master, Path copy, boolean repair, boolean deleteInvalidFileIfItShouldNotExist) {
-        return new Backup<Bundle<Path>>(new Bundle<>(master, copy), new DefaultReader(), new DefaultVerifier(), repair ? new DefaultRepairer(deleteInvalidFileIfItShouldNotExist) : Repairer.doesNothing());
+    static Backup<Bundle<Path>> of(Path master, Path copy, boolean repair, Path archiveDirForInvalidFileIfItShouldNotExist) {
+        return new Backup<Bundle<Path>>(new Bundle<>(master, copy), new DefaultReader(), new DefaultVerifier(), repair ? new DefaultRepairer(archiveDirForInvalidFileIfItShouldNotExist) : Repairer.doesNothing());
     }
 
     /**
@@ -52,14 +52,14 @@ public record Backup<T>(T dirs, Reader<T> reader, Verifier<T> verifier,
      * If repair is switched on, it repairs byte-by-byte, irrelevant where the valid byte comes from.<br>
      * Only if repair is switched on, not existing directories and files were created.
      *
-     * @param dirs                                all directories
-     * @param repair                              repair is switched on, if true
-     * @param deleteInvalidFileIfItShouldNotExist if valid file doesn't exist, deletes the invalid file if true, otherwise renames it
-     * @param firstLevelSubDirsFilterRegEx        if not null, only matching first level subdirectories of dirs were used
+     * @param dirs                                       all directories
+     * @param repair                                     repair is switched on, if true
+     * @param archiveDirForInvalidFileIfItShouldNotExist if valid file doesn't exist, moves the invalid file to archive dir or if null deletes the invalid file
+     * @param firstLevelSubDirsFilterRegEx               if not null, only matching first level subdirectories of dirs were used
      * @return backup instance
      * @throws UnsupportedOperationException by now
      */
-    static Backup<List<Path>> of(List<Path> dirs, boolean repair, boolean deleteInvalidFileIfItShouldNotExist, String firstLevelSubDirsFilterRegEx) {
+    static Backup<List<Path>> of(List<Path> dirs, boolean repair, Path archiveDirForInvalidFileIfItShouldNotExist, String firstLevelSubDirsFilterRegEx) {
         throw new UnsupportedOperationException("only available at full version");
     }
 

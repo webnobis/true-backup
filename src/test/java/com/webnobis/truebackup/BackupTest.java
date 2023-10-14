@@ -55,7 +55,7 @@ class BackupTest {
     void ofDefault() {
         Path master = Path.of("master");
         Path copy = Path.of("copy");
-        Backup<Bundle<Path>> defaultBackup = Backup.of(master, copy, true, true);
+        Backup<Bundle<Path>> defaultBackup = Backup.of(master, copy, true, null);
 
         Bundle<Path> dirs = defaultBackup.dirs();
         assertNotNull(dirs);
@@ -65,12 +65,12 @@ class BackupTest {
         assertEquals(DefaultVerifier.class, defaultBackup.verifier().getClass());
         assertEquals(DefaultRepairer.class, defaultBackup.repairer().getClass());
 
-        assertSame(Repairer.doesNothing(), Backup.of(master, copy, false, true).repairer());
+        assertSame(Repairer.doesNothing(), Backup.of(master, copy, false, null).repairer());
     }
 
     @Test
     void ofFullFailed() {
-        assertThrows(UnsupportedOperationException.class, () -> Backup.of(null, true, true, null));
+        assertThrows(UnsupportedOperationException.class, () -> Backup.of(null, true, null, null));
     }
 
     @Test
