@@ -17,10 +17,10 @@ public class DefaultRepairer extends AbstractRepairer {
     private static final Logger log = LoggerFactory.getLogger(DefaultRepairer.class);
 
     /**
-     * Delete flag setting constructor
+     * Optionally archive path setting constructor
      *
      * @param archiveDirForInvalidFileIfItShouldNotExist if valid file doesn't exist, moves the invalid file to archive dir or if null deletes the invalid file
-     * @see AbstractRepairer#AbstractRepairer(java.nio.file.Path)
+     * @see AbstractRepairer#AbstractRepairer(Path)
      */
     public DefaultRepairer(Path archiveDirForInvalidFileIfItShouldNotExist) {
         super(archiveDirForInvalidFileIfItShouldNotExist);
