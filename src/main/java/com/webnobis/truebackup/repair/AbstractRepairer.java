@@ -27,8 +27,11 @@ public abstract class AbstractRepairer implements Repairer {
     private static final Logger log = LoggerFactory.getLogger(AbstractRepairer.class);
 
     private static final String FILE_DEL_EXT_FORMAT = "_yyyyMMddHHmmss";
+
     final String fileDelExt;
+
     private final Path archiveDirForInvalidFileIfItShouldNotExist;
+
     private final Verifier<Bundle<Path>> verifier;
 
     /**
