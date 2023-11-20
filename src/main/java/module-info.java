@@ -6,7 +6,7 @@
 module com.webnobis.truebackup {
 
     requires org.slf4j;
-    requires commons.cli;
+    requires org.apache.commons.cli;
 
     exports com.webnobis.truebackup;
 
