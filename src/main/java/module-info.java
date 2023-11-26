@@ -9,5 +9,6 @@ module com.webnobis.truebackup {
     requires org.apache.commons.cli;
 
     exports com.webnobis.truebackup;
+    exports com.webnobis.truebackup.progress;
 
 }

@@ -2,6 +2,7 @@ package com.webnobis.truebackup;
 
 import com.webnobis.truebackup.model.Bundle;
 import com.webnobis.truebackup.model.InvalidFile;
+import com.webnobis.truebackup.progress.ProgressLog;
 import com.webnobis.truebackup.read.DefaultReader;
 import com.webnobis.truebackup.read.Reader;
 import com.webnobis.truebackup.repair.DefaultRepairer;
@@ -72,7 +73,9 @@ public record Backup<T>(T dirs, Reader<T> reader, Verifier<T> verifier,
     public List<InvalidFile> backup() {
         Objects.requireNonNull(verifier, "verifier is null");
         Objects.requireNonNull(repairer, "repairer is null");
-        return Objects.requireNonNull(reader, "reader is null").read(dirs)
-                .parallel().flatMap(verifier::verify).flatMap(repairer::repair).toList();
+        ProgressLog progressBar = new ProgressLog();
+        return Objects.requireNonNull(reader, "reader is null").read(dirs).map(progressBar::read)
+                .parallel().map(verifier::verify).flatMap(progressBar::verified).map(progressBar::repair)
+                .map(repairer::repair).flatMap(progressBar::repaired).toList();
     }
 }

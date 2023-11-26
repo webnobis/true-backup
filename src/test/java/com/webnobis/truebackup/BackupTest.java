@@ -13,7 +13,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -78,6 +80,19 @@ class BackupTest {
         List<InvalidFile> list = backup.backup();
         assertSame(1, list.size());
         assertSame(INVALID_FILE, list.iterator().next());
+    }
+
+    @Test
+    void backupMultiThreaded() {
+        int max = 100;
+        String prefix = "the-good-prefix-";
+        List<InvalidFile> list = new Backup<Integer>(max, i -> IntStream.range(0, i).boxed().parallel(), i -> Stream.of(new InvalidFile(Path.of(prefix + i), null, Collections.emptyList())), REPAIRER).backup();
+        assertSame(max, list.size());
+        list.forEach(file -> {
+            assertTrue(file.invalid().getFileName().toString().startsWith(prefix));
+            assertNull(file.valid());
+            assertTrue(file.bytes().isEmpty());
+        });
     }
 
     @Test
