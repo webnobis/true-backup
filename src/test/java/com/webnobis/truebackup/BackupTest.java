@@ -50,6 +50,7 @@ class BackupTest {
 
     @BeforeEach
     void setUp() {
+        BackupFactory.factoryRef.set(new BackupFactory());
         backup = new Backup<>(DIRS, reader, verifier, REPAIRER);
     }
 
@@ -73,6 +74,18 @@ class BackupTest {
     @Test
     void ofFullFailed() {
         assertThrows(UnsupportedOperationException.class, () -> Backup.of(null, true, null, null));
+    }
+
+    @Test
+    void ofFullIfOverwritten() {
+        Backup<List<Path>> backup = new Backup<>(null, null, null, null);
+        BackupFactory.factoryRef.set(new BackupFactory() {
+            @Override
+            public Backup<List<Path>> of(List<Path> dirs, boolean repair, Path archiveDirForInvalidFileIfItShouldNotExist, String firstLevelSubDirsFilterRegEx) {
+                return backup;
+            }
+        });
+        assertSame(backup, Backup.of(null, true, null, null));
     }
 
     @Test

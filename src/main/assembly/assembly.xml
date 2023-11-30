@@ -43,12 +43,5 @@
             </includes>
             <fileMode>0755</fileMode>
         </fileSet>
-        <fileSet>
-            <directory>config</directory>
-            <outputDirectory>config</outputDirectory>
-            <includes>
-                <include>config.properties</include>
-            </includes>
-        </fileSet>
     </fileSets>
 </assembly>

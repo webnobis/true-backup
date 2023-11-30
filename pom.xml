@@ -75,10 +75,10 @@
                 </includes>
             </resource>
             <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
+                <directory>src/main/java</directory>
+                <filtering>false</filtering>
                 <includes>
-                    <include>*.properties</include>
+                    <include>*.*</include>
                 </includes>
             </resource>
             <resource>
@@ -209,5 +209,44 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>full</id>
+            <build>
+                <resources>
+                    <resource>
+                        <directory>src/main/resources</directory>
+                        <filtering>false</filtering>
+                        <includes>
+                            <include>*.*</include>
+                        </includes>
+                    </resource>
+                    <resource>
+                        <directory>src/main/java</directory>
+                        <filtering>false</filtering>
+                        <includes>
+                            <include>*.*</include>
+                        </includes>
+                    </resource>
+                    <resource>
+                        <directory>src/main/java-full</directory>
+                        <filtering>false</filtering>
+                        <includes>
+                            <include>*.*</include>
+                        </includes>
+                    </resource>
+                    <resource>
+                        <directory>src/main/command</directory>
+                        <filtering>true</filtering>
+                        <includes>
+                            <include>start.*</include>
+                        </includes>
+                        <targetPath>${project.build.directory}</targetPath>
+                    </resource>
+                </resources>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
