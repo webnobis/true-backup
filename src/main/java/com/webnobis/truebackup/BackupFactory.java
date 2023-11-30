@@ -65,7 +65,7 @@ public class BackupFactory {
      * @param archiveDirForInvalidFileIfItShouldNotExist if valid file doesn't exist, moves the invalid file to archive dir or if null deletes the invalid file
      * @param firstLevelSubDirsFilterRegEx               if not null, only matching first level subdirectories of dirs were used
      * @return backup instance
-     * @throws UnsupportedOperationException, because it's the default backup factory
+     * @throws UnsupportedOperationException because it's the default backup factory
      */
     public Backup<List<Path>> of(List<Path> dirs, boolean repair, Path archiveDirForInvalidFileIfItShouldNotExist, String firstLevelSubDirsFilterRegEx) {
         throw new UnsupportedOperationException("only available at full version");
