@@ -32,7 +32,7 @@ class StandardFileRepairerTest {
         Files.write(file1, BYTES);
         file2 = tmpDir.resolve("file2.txt");
         Files.write(file2, BYTES_OTHER);
-        repairer = new StandardFileRepairer(Path.of("archive"));
+        repairer = new StandardFileRepairer(Files.createTempDirectory(tmpDir, "archive"));
     }
 
     @Test
