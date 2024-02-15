@@ -5,5 +5,4 @@
 target/
 log/
 /dependency-reduced-pom.xml
-/src/main/java-full/
-/src/test/java-full/
+/true-backup.iml

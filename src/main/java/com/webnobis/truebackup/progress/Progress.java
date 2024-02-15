@@ -2,14 +2,17 @@ package com.webnobis.truebackup.progress;
 
 import com.webnobis.truebackup.model.InvalidFile;
 
+import java.nio.file.Path;
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
  * Progress for changes of current work
  *
+ * @param <T> the bundle type
  * @author Steffen Nobis
  */
-public interface Progress {
+public interface Progress<T> {
 
     /**
      * Progress
@@ -17,20 +20,19 @@ public interface Progress {
      * @param returning the returning value
      * @param found     increment found, if true
      * @param working   increment working, if true, otherwise decrement working
-     * @param <T>       the returning type
+     * @param <R>       the returning type
      * @return the over-giving value
      */
-    <T> T progress(T returning, boolean found, boolean working);
+    <R> R progress(R returning, boolean found, boolean working);
 
     /**
      * Reads the bundle
      *
      * @param bundle the returning bundle
-     * @param <T>    the bundle type
      * @return the over-given bundle
      * @see #progress(Object, boolean, boolean)
      */
-    default <T> T read(T bundle) {
+    default List<Path> read(List<Path> bundle) {
         return progress(bundle, true, true);
     }
 
@@ -41,7 +43,7 @@ public interface Progress {
      * @return the over-given invalid file
      * @see #progress(Object, boolean, boolean)
      */
-    default InvalidFile repair(InvalidFile invalidFile) {
+    default InvalidFile<T> repair(InvalidFile<T> invalidFile) {
         return progress(invalidFile, false, true);
     }
 
@@ -52,8 +54,8 @@ public interface Progress {
      * @return the over-given stream
      * @see #repaired(Stream)
      */
-    default Stream<InvalidFile> verified(Stream<InvalidFile> stream) {
-        return repaired(stream);
+    default Stream<InvalidFile<T>> verified(Stream<InvalidFile<T>> stream) {
+        return progress(stream, false, false);
     }
 
     /**
@@ -63,7 +65,7 @@ public interface Progress {
      * @return the over-given stream
      * @see #progress(Object, boolean, boolean)
      */
-    default Stream<InvalidFile> repaired(Stream<InvalidFile> stream) {
+    default Stream<InvalidFile<T>> repaired(Stream<InvalidFile<T>> stream) {
         return progress(stream, false, false);
     }
 

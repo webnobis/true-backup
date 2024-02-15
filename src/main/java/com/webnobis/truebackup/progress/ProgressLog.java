@@ -11,17 +11,19 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Progress for changes triggered logging of current work
  *
+ * @param <T> the bundle type
  * @author Steffen Nobis
  */
-public class ProgressLog implements Progress {
+public class ProgressLog<T> implements Progress<T> {
 
     private static final Logger log = LoggerFactory.getLogger(ProgressLog.class);
+
     final AtomicLong foundRef = new AtomicLong();
     final AtomicLong workingRef = new AtomicLong();
     private final Lock lock = new ReentrantLock();
 
     @Override
-    public <T> T progress(T returning, boolean found, boolean working) {
+    public <R> R progress(R returning, boolean found, boolean working) {
         for (; ; ) {
             try {
                 if (lock.tryLock(100, TimeUnit.MILLISECONDS)) {

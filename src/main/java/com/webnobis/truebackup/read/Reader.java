@@ -1,44 +1,24 @@
 package com.webnobis.truebackup.read;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * Files reader
+ * Reader
  *
- * @param <T> bundle type
+ * @param <T> each content type
  * @author Steffen Nobis
  */
 @FunctionalInterface
 public interface Reader<T> {
 
     /**
-     * Stream of all files with relative path
+     * Read the contents of the bundle
      *
-     * @param dir the directory
-     * @return all found files with relative path
-     * @throws IOException, if the reading failed
+     * @param bundle the bundle
+     * @return list content stream, each bundle part
      */
-    static Stream<Path> relativizeFiles(Path dir) throws IOException {
-        if (dir == null || Files.notExists(dir)) {
-            return Stream.empty();
-        }
-        if (Files.isRegularFile(dir)) {
-            return Stream.of(dir);
-        }
-        return Files.walk(dir).filter(Files::isRegularFile).map(dir::relativize);
-    }
+    Stream<List<T>> read(List<Path> bundle);
 
-    /**
-     * Unique stream of all file bundles, existing at least in one of the directories
-     *
-     * @param dirs all directories
-     * @return all file bundles
-     * @throws UncheckedIOException, if the reading failed
-     * @see Reader#relativizeFiles(Path)
-     */
-    Stream<T> read(T dirs);
 }

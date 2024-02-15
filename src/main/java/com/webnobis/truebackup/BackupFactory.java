@@ -1,74 +1,58 @@
 package com.webnobis.truebackup;
 
-import com.webnobis.truebackup.model.Bundle;
-import com.webnobis.truebackup.read.DefaultReader;
-import com.webnobis.truebackup.repair.DefaultRepairer;
-import com.webnobis.truebackup.repair.Repairer;
-import com.webnobis.truebackup.verify.DefaultVerifier;
+import com.webnobis.truebackup.model.Commands;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
+import java.nio.file.Paths;
 
-/**
- * Backup factory
- *
- * @author Steffen Nobis
- */
-public class BackupFactory {
+public record BackupFactory(String extensionsDir, String fullBackupClassName) {
 
-    static final AtomicReference<BackupFactory> factoryRef = new AtomicReference<>();
-    private static final String FULL_FACTORY_CLASS_NAME = "com.webnobis.truebackup.FullBackupFactory";
+    private static final String EXTENSIONS_DIR = "extensions";
 
-    /**
-     * If available, gets the full backup factory, otherwise the default backup factory
-     *
-     * @return the backup factory
-     */
-    public static BackupFactory instance() {
-        return factoryRef.updateAndGet(factory -> Optional.ofNullable(factory).orElseGet(BackupFactory::create));
+    private static final String FULL_BACKUP_CLASS_NAME = "de.db.learn.optional.libs.full.FullBackup";
+
+    private static final Logger log = LoggerFactory.getLogger(BackupFactory.class);
+
+    public BackupFactory() {
+        this(EXTENSIONS_DIR, FULL_BACKUP_CLASS_NAME);
     }
 
-    private static BackupFactory create() {
+    Backup<?> createBackup(Commands commands) {
         try {
-            return (BackupFactory) Class.forName(FULL_FACTORY_CLASS_NAME).getConstructor().newInstance();
-        } catch (Exception e) {
-            return new BackupFactory();
+            URLClassLoader uc = URLClassLoader.newInstance(
+                    Files.list(Paths.get(extensionsDir())).map(Path::toUri).map(uri -> {
+                        try {
+                            return uri.toURL();
+                        } catch (MalformedURLException e) {
+                            throw new UncheckedIOException(e);
+                        }
+                    }).toArray(i -> new URL[i]), BackupFactory.class.getClassLoader());
+
+            Class<?> fullBackupClass = Class.forName(fullBackupClassName(), true, uc);
+            Constructor<?> constructor = fullBackupClass.getConstructor(Commands.class);
+            return Backup.class.cast(constructor.newInstance(commands));
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            throw new UncheckedIOException(e);
+        } catch (ClassNotFoundException e) {
+            log.info("Full backup not available, fall back to standard backup.");
+            log.info("If you want to use the full backup, please get the full backup jar from the author, place it in the folder {} and start the program again.", extensionsDir());
+            return new StandardBackup(commands);
+        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
+                 IllegalAccessException e) {
+            log.error(e.getMessage(), e);
+            throw new IllegalStateException(e);
         }
-    }
-
-    /**
-     * Default backup<br>
-     * It verifies all files of master and copy directory byte-by-byte.<br>
-     * If repair is switched on, it repairs through file overwriting.
-     * Only if repair is switched on, not existing copies were created.
-     *
-     * @param master                                     the master directory
-     * @param copy                                       the copy directory
-     * @param repair                                     repair is switched on, if true
-     * @param archiveDirForInvalidFileIfItShouldNotExist if valid file doesn't exist, moves the invalid file to archive dir or if null deletes the invalid file
-     * @return backup instance
-     */
-    public Backup<Bundle<Path>> of(Path master, Path copy, boolean repair, Path archiveDirForInvalidFileIfItShouldNotExist) {
-        return new Backup<Bundle<Path>>(new Bundle<>(master, copy), new DefaultReader(), new DefaultVerifier(), repair ? new DefaultRepairer(archiveDirForInvalidFileIfItShouldNotExist) : Repairer.doesNothing());
-    }
-
-    /**
-     * Full version backup<br>
-     * It verifies all files of listed directories byte-by-byte via majority principle voting.<br>
-     * If repair is switched on, it repairs byte-by-byte, irrelevant where the valid byte comes from.<br>
-     * Only if repair is switched on, not existing directories and files were created.
-     *
-     * @param dirs                                       all directories
-     * @param repair                                     repair is switched on, if true
-     * @param archiveDirForInvalidFileIfItShouldNotExist if valid file doesn't exist, moves the invalid file to archive dir or if null deletes the invalid file
-     * @param firstLevelSubDirsFilterRegEx               if not null, only matching first level subdirectories of dirs were used
-     * @return backup instance
-     * @throws UnsupportedOperationException because it's the default backup factory
-     */
-    public Backup<List<Path>> of(List<Path> dirs, boolean repair, Path archiveDirForInvalidFileIfItShouldNotExist, String firstLevelSubDirsFilterRegEx) {
-        throw new UnsupportedOperationException("only available at full version");
     }
 
 }

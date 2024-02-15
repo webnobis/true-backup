@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.webnobis.truebackup</groupId>
-    <artifactId>TrueBackup</artifactId>
+    <artifactId>true-backup</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
     <properties>
@@ -22,6 +22,7 @@
             <organization>WebNobis</organization>
         </developer>
     </developers>
+
     <dependencies>
         <dependency>
             <groupId>commons-cli</groupId>
@@ -64,6 +65,7 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
     <build>
         <finalName>${project.artifactId}_${project.version}</finalName>
         <resources>
@@ -180,13 +182,9 @@
                         --add-opens
                         ${project.module}/${project.module}.read=ALL-UNNAMED
                         --add-opens
-                        ${project.module}/${project.module}.read.bytes=ALL-UNNAMED
-                        --add-opens
                         ${project.module}/${project.module}.repair=ALL-UNNAMED
                         --add-opens
                         ${project.module}/${project.module}.verify=ALL-UNNAMED
-                        --add-opens
-                        ${project.module}/${project.module}.verify.bytes=ALL-UNNAMED
                     </argLine>
                 </configuration>
             </plugin>
@@ -209,44 +207,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>full</id>
-            <build>
-                <resources>
-                    <resource>
-                        <directory>src/main/resources</directory>
-                        <filtering>false</filtering>
-                        <includes>
-                            <include>*.*</include>
-                        </includes>
-                    </resource>
-                    <resource>
-                        <directory>src/main/java</directory>
-                        <filtering>false</filtering>
-                        <includes>
-                            <include>*.*</include>
-                        </includes>
-                    </resource>
-                    <resource>
-                        <directory>src/main/java-full</directory>
-                        <filtering>false</filtering>
-                        <includes>
-                            <include>*.*</include>
-                        </includes>
-                    </resource>
-                    <resource>
-                        <directory>src/main/command</directory>
-                        <filtering>true</filtering>
-                        <includes>
-                            <include>start.*</include>
-                        </includes>
-                        <targetPath>${project.build.directory}</targetPath>
-                    </resource>
-                </resources>
-            </build>
-        </profile>
-    </profiles>
 
 </project>
