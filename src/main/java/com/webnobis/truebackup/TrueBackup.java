@@ -9,7 +9,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Optional;
 
-public record TrueBackup(BackupFactory backupFactory) {
+public record TrueBackup(BackupBuilder backupBuilder) {
 
     private static final int ONE = 1;
 
@@ -40,7 +40,7 @@ public record TrueBackup(BackupFactory backupFactory) {
             try {
                 CommandLine commands = parser.parse(options, args);
                 log.debug("commands read");
-                return new Commands(Arrays.stream(commands.getOptionValues('b')).map(Path::of).toList(), commands.hasOption('r'), Path.of(commands.getOptionValue('a')), commands.getOptionValue('f'));
+                return new Commands(Arrays.stream(commands.getOptionValues('b')).map(Path::of).toList(), commands.hasOption('r'), commands.hasOption('a') ? Path.of(commands.getOptionValue('a')) : null, commands.getOptionValue('s'));
             } catch (ParseException e) {
                 log.error(e.getMessage(), e);
             }
@@ -66,9 +66,17 @@ public record TrueBackup(BackupFactory backupFactory) {
         return options;
     }
 
-    public void backup(String[] args) {
+    public boolean backup(String[] args) {
         Commands commands = transform(args);
-        backupFactory().createBackup(commands).backup();
+        if (backupBuilder.createBackup(commands).backup()) {
+            log.info("Backup finished successful.");
+            return true;
+        } else if (commands.repair()) {
+            log.error("Backup finished, but not all found invalid files could be repaired. Please show logs for more information.");
+        } else {
+            log.warn("Backup finished, but the found invalid files. Please re-run with switched on repair.");
+        }
+        return false;
     }
 
 }

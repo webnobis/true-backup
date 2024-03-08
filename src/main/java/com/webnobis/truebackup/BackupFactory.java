@@ -15,11 +15,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public record BackupFactory(String extensionsDir, String fullBackupClassName) {
+public record BackupFactory(String extensionsDir, String fullBackupClassName) implements BackupBuilder {
 
-    private static final String EXTENSIONS_DIR = "extensions";
+    public static final String EXTENSIONS_DIR = "extensions";
 
-    private static final String FULL_BACKUP_CLASS_NAME = "de.db.learn.optional.libs.full.FullBackup";
+    static final String FULL_BACKUP_CLASS_NAME = "de.db.learn.optional.libs.full.FullBackup";
 
     private static final Logger log = LoggerFactory.getLogger(BackupFactory.class);
 
@@ -27,7 +27,8 @@ public record BackupFactory(String extensionsDir, String fullBackupClassName) {
         this(EXTENSIONS_DIR, FULL_BACKUP_CLASS_NAME);
     }
 
-    Backup<?> createBackup(Commands commands) {
+    @Override
+    public Backup<?> createBackup(Commands commands) {
         try {
             URLClassLoader uc = URLClassLoader.newInstance(
                     Files.list(Paths.get(extensionsDir())).map(Path::toUri).map(uri -> {
@@ -40,6 +41,7 @@ public record BackupFactory(String extensionsDir, String fullBackupClassName) {
 
             Class<?> fullBackupClass = Class.forName(fullBackupClassName(), true, uc);
             Constructor<?> constructor = fullBackupClass.getConstructor(Commands.class);
+            log.info("Full backup available. It will be created.");
             return Backup.class.cast(constructor.newInstance(commands));
         } catch (IOException e) {
             log.error(e.getMessage(), e);
